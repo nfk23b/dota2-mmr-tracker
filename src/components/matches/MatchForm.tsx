@@ -39,7 +39,7 @@ const MatchForm: React.FC = () => {
     
     const filtered = HEROES.filter(h => 
       h.toLowerCase().includes(hero.toLowerCase())
-    ).slice(0, 5); // Limit to 5 suggestions
+    ).slice(0, 5);
     
     setFilteredHeroes(filtered);
   }, [hero]);
@@ -48,7 +48,6 @@ const MatchForm: React.FC = () => {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
-      // Проверяем, что клик был не на элементе списка и не на поле ввода
       if (!target.closest('.hero-suggestion') && target !== heroInputRef.current) {
         setShowSuggestions(false);
       }
@@ -85,7 +84,7 @@ const MatchForm: React.FC = () => {
       hero,
       role: Number(role) as 1 | 2 | 3 | 4 | 5,
       mmrChange: Number(mmrChange),
-      gameType: gameType as any,
+      gameDifficulty: gameType as any,
       isTokenGame,
       result: result as 'win' | 'loss',
       moodStart: moodStart as Mood,
@@ -117,7 +116,7 @@ const MatchForm: React.FC = () => {
   };
 
   const handleHeroSelect = (selectedHero: string) => {
-    console.log("Hero selected:", selectedHero); // Отладка
+    console.log("Hero selected:", selectedHero); 
     setHero(selectedHero);
     setShowSuggestions(false);
   };
