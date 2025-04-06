@@ -1,0 +1,44 @@
+{
+  "name": "mmr_tracker",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "start": "nodemon",
+    "prettier": "prettier --check '**/**/*.{js,jsx,ts,tsx,css}'",
+    "prettier:fix": "prettier --write '**/**/*.{js,jsx,ts,tsx,css}'"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/icons-material": "^6.4.0",
+    "@mui/material": "^6.4.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "date-fns": "^4.1.0",
+    "dotenv": "^16.4.7",
+    "nodemon": "^3.1.9",
+    "punycode2": "^1.0.1",
+    "readline-sync": "^1.4.10",
+    "ts-node": "^10.9.2",
+    "vite": "^6.2.1",
+    "zustand": "^5.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.7",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "@types/readline-sync": "^1.4.8",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^3.4.17",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  },
+  "description": ""
+}
