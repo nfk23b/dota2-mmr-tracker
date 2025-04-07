@@ -1,13 +1,19 @@
 import { Match, Mood } from './types';
 
-export const GAME_TYPES = {
+export const GAME_DIFFICULTIES = {
+    FREE: 'free',
     EASY: 'easy',
+    even: 'even',
+    hard: 'hard',
     IMPOSSIBLE: 'impossible',
     SELF_IMPACT: 'self-impact'
 } as const;
 
-export const GAME_TYPE_LABELS: Record<Match['gameDifficulty'], string> = {
+export const GAME_DIFFICULTY_LABELS: Record<Match['gameDifficulty'], string> = {
+    free: 'Free game',
     easy: 'Easy game',
+    even: 'Even game',
+    hard: 'Hard game',
     impossible: 'Impossible game',
     'self-impact': 'Self impact'
 } as const;

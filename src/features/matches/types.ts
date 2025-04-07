@@ -6,7 +6,7 @@ export interface Match {
     hero: string;
     role: 1 | 2 | 3 | 4 | 5;
     mmrChange: number;
-    gameDifficulty: 'easy' | 'impossible' | 'self-impact';
+    gameDifficulty: 'free' | 'easy' | 'even' | 'hard' | 'impossible' | 'self-impact';
     isTokenGame: boolean;
     result: 'win' | 'loss';
     moodStart: Mood;

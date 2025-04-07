@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Match } from '../../features/matches/types';
 import { format } from 'date-fns';
 import { 
-  GAME_TYPE_LABELS, 
+  GAME_DIFFICULTY_LABELS, 
   ROLE_LABELS, 
   MOODS, 
   GAME_RESULT_LABELS 
@@ -69,8 +69,8 @@ const MatchCard: React.FC<MatchCardProps> = ({ match, onDelete }) => {
             </span>
           </div>
           <div>
-            <span className="text-gray-400 mr-1">Game Type:</span> 
-            <span className="font-medium">{GAME_TYPE_LABELS[gameDifficulty]}</span>
+            <span className="text-gray-400 mr-1">Game Difficulty:</span> 
+            <span className="font-medium">{GAME_DIFFICULTY_LABELS[gameDifficulty]}</span>
           </div>
           <div>
             <span className="text-gray-400 mr-1">Result:</span> 

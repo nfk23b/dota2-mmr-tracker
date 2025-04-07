@@ -62,7 +62,7 @@ const Header: React.FC = () => {
           ) : (
             <div 
               onClick={handleEditClick}
-              className="font-bold text-2xl text-white cursor-pointer hover:text-dota-red transition-colors"
+              className="text-center font-bold text-2xl text-white cursor-pointer hover:text-dota-red transition-colors"
             >
               {currentMMR}
             </div>

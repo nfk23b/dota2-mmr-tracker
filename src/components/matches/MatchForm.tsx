@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useMatchesStore } from '../../store/matches/matchesStore';
+import { differenceInHours } from 'date-fns';
 import { 
-  GAME_TYPES, 
-  GAME_TYPE_LABELS, 
+  GAME_DIFFICULTIES, 
+  GAME_DIFFICULTY_LABELS, 
   ROLES, 
   ROLE_LABELS, 
   MOODS, 
@@ -13,10 +14,13 @@ import {
 import type { Mood } from '../../features/matches/types';
 
 const MatchForm: React.FC = () => {
+  const matches = useMatchesStore(state => state.matches);
   const addMatch = useMatchesStore(state => state.addMatch);
-  
+
+  const [gameDifficulty, setGameDifficulty] = useState('');
+  const [showAllHeroes, setShowAllHeroes] = useState(false);
   const [hero, setHero] = useState('');
-  const [filteredHeroes, setFilteredHeroes] = useState<string[]>([]);
+  const [filteredHeroes, setFilteredHeroes] = useState<Array<typeof HEROES[number]>>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [role, setRole] = useState<number | ''>('');
   const [mmrChange, setMmrChange] = useState<number | ''>('');
@@ -32,6 +36,11 @@ const MatchForm: React.FC = () => {
   
   // Filter heroes based on input
   useEffect(() => {
+    if (showAllHeroes && hero.trim() === '') {
+      setFilteredHeroes([...HEROES]);
+      return;
+    }
+    
     if (hero.trim() === '') {
       setFilteredHeroes([]);
       return;
@@ -39,10 +48,10 @@ const MatchForm: React.FC = () => {
     
     const filtered = HEROES.filter(h => 
       h.toLowerCase().includes(hero.toLowerCase())
-    ).slice(0, 5);
+    ).slice(0, 5); 
     
-    setFilteredHeroes(filtered);
-  }, [hero]);
+    setFilteredHeroes([...filtered]); 
+  }, [hero, showAllHeroes]);
   
   // Handle click outside suggestions
   useEffect(() => {
@@ -59,13 +68,39 @@ const MatchForm: React.FC = () => {
     };
   }, []);
 
+  // Setting the mood
+  useEffect(() => {
+    if (matches.length > 0) {
+      const sortedMatches = [...matches].sort((a, b) => 
+        new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
+      const lastMatch = sortedMatches[0];
+      
+      const hoursSinceLastMatch = differenceInHours(
+        new Date(),
+        new Date(lastMatch.date)
+      );
+      
+      if (
+        lastMatch && 
+        !moodStart && 
+        !hero && 
+        !role && 
+        mmrChange === '' &&
+        hoursSinceLastMatch < 2
+      ) {
+        setMoodStart(lastMatch.moodEnd);
+      }
+    }
+  }, [matches, moodStart, hero, role, mmrChange]);
+
   const validate = () => {
     const newErrors: Record<string, string> = {};
     
     if (!hero.trim()) newErrors.hero = 'Hero is required';
     if (!role) newErrors.role = 'Role is required';
     if (mmrChange === '') newErrors.mmrChange = 'MMR change is required';
-    if (!gameType) newErrors.gameType = 'Game type is required';
+    if (!gameDifficulty) newErrors.gameDifficulty = 'Game difficulty is required';
     if (!result) newErrors.result = 'Result is required';
     if (!moodStart) newErrors.moodStart = 'Start mood is required';
     if (!moodEnd) newErrors.moodEnd = 'End mood is required';
@@ -79,12 +114,15 @@ const MatchForm: React.FC = () => {
     
     if (!validate()) return;
 
+    const endMood = moodEnd;
+    const currentTime = new Date();
+
     // Add match
     addMatch({
       hero,
       role: Number(role) as 1 | 2 | 3 | 4 | 5,
       mmrChange: Number(mmrChange),
-      gameDifficulty: gameType as any,
+      gameDifficulty: gameDifficulty as any,
       isTokenGame,
       result: result as 'win' | 'loss',
       moodStart: moodStart as Mood,
@@ -100,12 +138,27 @@ const MatchForm: React.FC = () => {
     setGameType('');
     setIsTokenGame(false);
     setResult('');
-    setMoodStart('');
+    setMoodStart(endMood);
     setMoodEnd('');
     setComment('');
     setErrors({});
+
+    sessionStorage.setItem('lastMatchAddedTime', currentTime.toISOString());
   };
   
+  useEffect(() => {
+    const lastAddedTimeStr = sessionStorage.getItem('lastMatchAddedTime');
+    
+    if (lastAddedTimeStr) {
+      const lastAddedTime = new Date(lastAddedTimeStr);
+      const hoursSinceLastAdded = differenceInHours(new Date(), lastAddedTime);
+      
+      if (hoursSinceLastAdded >= 2) {
+        setMoodStart('');
+      }
+    }
+  }, []);
+
   // Set result based on MMR change
   const handleMmrChangeUpdate = (value: number | '') => {
     setMmrChange(value);
@@ -137,7 +190,15 @@ const MatchForm: React.FC = () => {
               setHero(e.target.value);
               setShowSuggestions(true);
             }}
-            onFocus={() => setShowSuggestions(true)}
+            onFocus={() => {
+              setShowSuggestions(true);
+              setShowAllHeroes(true);
+            }}
+            onBlur={() => {
+              setTimeout(() => {
+                setShowAllHeroes(false);
+              }, 200);
+            }}
             className={`w-full bg-gray-700 border ${errors.hero ? 'border-red-500' : 'border-gray-600'} rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-dota-red`}
             placeholder="Enter hero name"
           />
@@ -145,7 +206,7 @@ const MatchForm: React.FC = () => {
           
           {/* Hero suggestions */}
           {showSuggestions && filteredHeroes.length > 0 && (
-            <div className="absolute z-10 w-full mt-1 bg-gray-700 border border-gray-600 rounded-md shadow-lg">
+            <div className="absolute z-10 w-full mt-1 bg-gray-700 border border-gray-600 rounded-md shadow-lg max-h-60 overflow-y-auto">
               {filteredHeroes.map(heroName => (
                 <div
                   key={heroName}
@@ -193,22 +254,22 @@ const MatchForm: React.FC = () => {
           </div>
         </div>
 
-        {/* Game Type and Token Game */}
+        {/* Game Difficulty and Token Game */}
         <div className="grid grid-cols-2 gap-4">
-          {/* Game Type */}
+          {/* Game Difficulty */}
           <div>
-            <label className="block text-sm font-medium mb-1 text-gray-300">Game Type</label>
+            <label className="block text-sm font-medium mb-1 text-gray-300">Game Difficulty</label>
             <select
-              value={gameType}
-              onChange={(e) => setGameType(e.target.value)}
-              className={`w-full bg-gray-700 border ${errors.gameType ? 'border-red-500' : 'border-gray-600'} rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-dota-red`}
+              value={gameDifficulty}
+              onChange={(e) => setGameDifficulty(e.target.value)}
+              className={`w-full bg-gray-700 border ${errors.gameDifficulty ? 'border-red-500' : 'border-gray-600'} rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-dota-red`}
             >
-              <option value="">Select game type</option>
-              {Object.values(GAME_TYPES).map(type => (
-                <option key={type} value={type}>{GAME_TYPE_LABELS[type]}</option>
+              <option value="">Select difficulty</option>
+              {Object.values(GAME_DIFFICULTIES).map(difficulty => (
+                <option key={difficulty} value={difficulty}>{GAME_DIFFICULTY_LABELS[difficulty]}</option>
               ))}
             </select>
-            {errors.gameType && <p className="text-red-500 text-xs mt-1">{errors.gameType}</p>}
+            {errors.gameDifficulty && <p className="text-red-500 text-xs mt-1">{errors.gameDifficulty}</p>}
           </div>
 
           {/* Token Game */}
