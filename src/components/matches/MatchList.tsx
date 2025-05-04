@@ -4,12 +4,16 @@ import MatchCard from './MatchCard';
 import MatchFilters, { FilterOptions } from './MatchFilters';
 import MmrChart from '../charts/MmrChart';
 import HeroStats from '../stats/HeroStats';
+import EditMatchModal from './EditMatchModal';
+import { Match } from '../../features/matches/types';
 
 type SortOption = 'newest' | 'oldest' | 'mmr-high' | 'mmr-low';
 
 const MatchList: React.FC = () => {
   const matches = useMatchesStore(state => state.matches);
   const removeMatch = useMatchesStore(state => state.removeMatch);
+  const updateMatch = useMatchesStore(state => state.updateMatch);
+  const [editingMatch, setEditingMatch] = useState<Match | null>(null);
   
   const [sortOption, setSortOption] = useState<SortOption>('newest');
   const [filters, setFilters] = useState<FilterOptions>({
@@ -20,11 +24,25 @@ const MatchList: React.FC = () => {
     tokenOnly: false
   });
 
+
   // Get unique heroes from matches
   const uniqueHeroes = useMemo(() => {
     const heroSet = new Set(matches.map(match => match.hero));
     return Array.from(heroSet).sort();
   }, [matches]);
+
+  const handleEditMatch = (match: Match) => {
+    setEditingMatch(match);
+  };
+  
+  const handleSaveEdit = (id: string, matchData: Partial<Omit<Match, 'id' | 'date'>>) => {
+    updateMatch(id, matchData);
+    setEditingMatch(null);
+  };
+  
+  const handleCancelEdit = () => {
+    setEditingMatch(null);
+  };
 
   // Apply filters and sorting
   const filteredAndSortedMatches = useMemo(() => {
@@ -170,8 +188,20 @@ const MatchList: React.FC = () => {
       ) : (
         <div className="space-y-4">
           {filteredAndSortedMatches.map(match => (
-            <MatchCard key={match.id} match={match} onDelete={removeMatch} />
+            <MatchCard 
+              key={match.id} 
+              match={match} 
+              onDelete={removeMatch} 
+              onEdit={handleEditMatch}
+            />
           ))}
+          {editingMatch && (
+            <EditMatchModal 
+              match={editingMatch} 
+              onSave={handleSaveEdit} 
+              onCancel={handleCancelEdit} 
+            />
+          )}
         </div>
       )}
     </div>

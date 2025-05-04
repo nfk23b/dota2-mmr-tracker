@@ -123,7 +123,7 @@ const HeroStats: React.FC<HeroStatsProps> = ({ matches }) => {
               >
                 Avg. MMR {sortBy === 'mmr' && (sortDirection === 'asc' ? '↑' : '↓')}
               </th>
-              <th className="text-right py-2 px-3">Main Role</th>
+              <th className="text-right py-2 px-3">Role</th>
             </tr>
           </thead>
           <tbody>
@@ -133,13 +133,16 @@ const HeroStats: React.FC<HeroStatsProps> = ({ matches }) => {
                 <td className="text-right py-2 px-3">{stat.games}</td>
                 <td className="text-right py-2 px-3">
                   <span className={`font-medium ${stat.winrate >= 50 ? 'text-green-400' : 'text-red-400'}`}>
-                    {stat.winrate.toFixed(1)}%
+                    {stat.winrate % 1 === 0 ? stat.winrate.toFixed(0) : stat.winrate.toFixed(1)}%
                   </span>
                   <span className="text-gray-400 text-xs ml-1">({stat.wins}-{stat.losses})</span>
                 </td>
                 <td className="text-right py-2 px-3">
                   <span className={stat.avgMmrChange > 0 ? 'text-green-400' : stat.avgMmrChange < 0 ? 'text-red-400' : 'text-gray-400'}>
-                    {stat.avgMmrChange > 0 ? '+' : ''}{stat.avgMmrChange.toFixed(1)}
+                    {stat.avgMmrChange % 1 === 0 
+                      ? (stat.avgMmrChange > 0 ? '+' : '') + stat.avgMmrChange.toFixed(0)
+                      : (stat.avgMmrChange > 0 ? '+' : '') + stat.avgMmrChange.toFixed(1)
+                    }
                   </span>
                 </td>
                 <td className="text-right py-2 px-3">

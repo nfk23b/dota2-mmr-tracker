@@ -1,3 +1,55 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --background-light: #f9fafb;
+  --text-light: #1f2937;
+  --background-dark: #111827;
+  --text-dark: #f9fafb;
+}
+
+/* Base styles */
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  transition: background-color 0.3s, color 0.3s;
+  @apply bg-gray-100 text-gray-900;
+}
+
+/* Dark mode styles */
+.dark body {
+  @apply bg-gray-900 text-gray-100;
+}
+
+/* Form controls - ensure visible text in all themes */
+input, select, textarea {
+  @apply text-gray-800 bg-white;
+}
+
+.dark input, 
+.dark select, 
+.dark textarea {
+  @apply text-white bg-gray-800 border-gray-600;
+}
+
+/* Default button styles */
+button {
+  @apply transition-colors duration-200;
+}
+
+/* Utility classes for theme-specific styling */
+.bg-card {
+  @apply bg-white dark:bg-gray-800;
+}
+
+.border-default {
+  @apply border-gray-300 dark:border-gray-700;
+}
+
+.text-default {
+  @apply text-gray-900 dark:text-white;
+}
+
+.text-muted {
+  @apply text-gray-500 dark:text-gray-400;
+}

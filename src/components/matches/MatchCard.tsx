@@ -11,9 +11,10 @@ import {
 interface MatchCardProps {
   match: Match;
   onDelete: (id: string) => void;
+  onEdit: (match: Match) => void;
 }
 
-const MatchCard: React.FC<MatchCardProps> = ({ match, onDelete }) => {
+const MatchCard: React.FC<MatchCardProps> = ({ match, onDelete, onEdit  }) => {
   const { 
     id, date, hero, role, mmrChange, gameDifficulty, isTokenGame, 
     result, moodStart, moodEnd, comment 
@@ -115,12 +116,20 @@ const MatchCard: React.FC<MatchCardProps> = ({ match, onDelete }) => {
               </button>
             </div>
           ) : (
-            <button 
-              onClick={handleDeleteClick}
-              className="text-red-400 hover:text-red-300 text-sm px-3 py-1 hover:bg-red-900/30 rounded transition-colors"
-            >
-              Delete
-            </button>
+            <div className="flex justify-end space-x-2">
+              <button 
+                onClick={() => onEdit(match)}
+                className="text-blue-400 hover:text-blue-300 text-sm px-3 py-1 hover:bg-blue-900/30 rounded transition-colors"
+              >
+                Edit
+              </button>
+              <button 
+                onClick={handleDeleteClick}
+                className="text-red-400 hover:text-red-300 text-sm px-3 py-1 hover:bg-red-900/30 rounded transition-colors"
+              >
+                Delete
+              </button>
+            </div>
           )}
         </div>
       </div>

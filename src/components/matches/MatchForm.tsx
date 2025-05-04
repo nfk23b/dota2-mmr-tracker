@@ -30,10 +30,21 @@ const MatchForm: React.FC = () => {
   const [moodStart, setMoodStart] = useState('');
   const [moodEnd, setMoodEnd] = useState('');
   const [comment, setComment] = useState('');
+  const [showMmrPresets, setShowMmrPresets] = useState(false);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const heroInputRef = useRef<HTMLInputElement>(null);
   
+  const mmrPresets = [
+    { value: 30, label: '+30' },
+    { value: 25, label: '+25' },
+    { value: 20, label: '+20' },
+    { value: 0, label: '0' },
+    { value: -20, label: '-20' },
+    { value: -25, label: '-25' },
+    { value: -30, label: '-30' }
+  ];
+
   // Filter heroes based on input
   useEffect(() => {
     if (showAllHeroes && hero.trim() === '') {
@@ -159,6 +170,23 @@ const MatchForm: React.FC = () => {
     }
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      const isInput = target instanceof HTMLInputElement;
+      const isNumberInput = isInput && target.type === 'number';
+      
+      if (!target.closest('.mmr-presets') && !isNumberInput) {
+        setShowMmrPresets(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   // Set result based on MMR change
   const handleMmrChangeUpdate = (value: number | '') => {
     setMmrChange(value);
@@ -243,13 +271,61 @@ const MatchForm: React.FC = () => {
           {/* MMR Change */}
           <div>
             <label className="block text-sm font-medium mb-1 text-gray-300">MMR Change</label>
-            <input
-              type="number"
-              value={mmrChange}
-              onChange={(e) => handleMmrChangeUpdate(e.target.value ? Number(e.target.value) : '')}
-              className={`w-full bg-gray-700 border ${errors.mmrChange ? 'border-red-500' : 'border-gray-600'} rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-dota-red`}
-              placeholder="+30 or -30"
-            />
+            <div className="relative">
+              <input
+                type="number"
+                value={mmrChange}
+                onChange={(e) => {
+                  const value = e.target.value ? parseInt(e.target.value) : '';
+                  handleMmrChangeUpdate(value as number);
+                }}
+                onFocus={() => setShowMmrPresets(true)}
+                className={`w-full bg-gray-700 border ${errors.mmrChange ? 'border-red-500' : 'border-gray-600'} rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-dota-red`}
+                placeholder="+30 or -30"
+              />
+              {showMmrPresets && (
+                <div className="absolute z-10 w-full mt-1 bg-gray-700 border border-gray-600 rounded-md shadow-lg overflow-hidden mmr-presets">
+                  <div className="grid grid-cols-4">
+                    {mmrPresets
+                      .filter(preset => preset.value >= 0)
+                      .map((preset) => (
+                        <button
+                          key={preset.value}
+                          type="button"
+                          onClick={() => {
+                            handleMmrChangeUpdate(preset.value);
+                            setShowMmrPresets(false);
+                          }}
+                          className={`px-3 py-2 text-center hover:bg-gray-600 ${
+                            preset.value > 0 
+                              ? 'text-green-400' 
+                              : 'text-gray-300'
+                          }`}
+                        >
+                          {preset.label}
+                        </button>
+                      ))}
+                  </div>
+                  <div className="grid grid-cols-4">
+                    {mmrPresets
+                      .filter(preset => preset.value < 0)
+                      .map((preset) => (
+                        <button
+                          key={preset.value}
+                          type="button"
+                          onClick={() => {
+                            handleMmrChangeUpdate(preset.value);
+                            setShowMmrPresets(false);
+                          }}
+                          className="px-3 py-2 text-center hover:bg-gray-600 text-red-400"
+                        >
+                          {preset.label}
+                        </button>
+                      ))}
+                  </div>
+                </div>
+              )}
+            </div>
             {errors.mmrChange && <p className="text-red-500 text-xs mt-1">{errors.mmrChange}</p>}
           </div>
         </div>
