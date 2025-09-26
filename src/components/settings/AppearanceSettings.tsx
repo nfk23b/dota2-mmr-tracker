@@ -52,8 +52,8 @@ const AppearanceSettings: React.FC = () => {
         <label className="block font-medium">
           Theme
         </label>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
+        <div className="grid grid-cols-3 gap-4">
+          {/* <div className="space-y-2">
             <ThemePreview themeName="Light" active={theme === 'light'} />
             <button 
               onClick={() => updateTheme('light')}
@@ -61,7 +61,7 @@ const AppearanceSettings: React.FC = () => {
             >
               Light
             </button>
-          </div>
+          </div> */}
           <div className="space-y-2">
             <ThemePreview themeName="Dark" active={theme === 'dark'} />
             <button 

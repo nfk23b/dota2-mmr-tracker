@@ -5,7 +5,7 @@ interface HeroStatsProps {
   matches: Match[];
 }
 
-type SortKey = 'games' | 'winrate' | 'mmr';
+type SortKey = 'games' | 'winrate' | 'mmr' | 'totalMmr';
 
 const HeroStats: React.FC<HeroStatsProps> = ({ matches }) => {
   const [sortBy, setSortBy] = useState<SortKey>('games');
@@ -71,6 +71,9 @@ const HeroStats: React.FC<HeroStatsProps> = ({ matches }) => {
         case 'mmr':
           compareValue = a.avgMmrChange - b.avgMmrChange;
           break;
+        case 'totalMmr':
+          compareValue = a.mmrChange - b.mmrChange;
+          break;
         default:
           compareValue = 0;
       }
@@ -118,6 +121,12 @@ const HeroStats: React.FC<HeroStatsProps> = ({ matches }) => {
                 Winrate {sortBy === 'winrate' && (sortDirection === 'asc' ? '↑' : '↓')}
               </th>
               <th 
+                className={`text-right py-2 px-3 cursor-pointer ${sortBy === 'totalMmr' ? 'text-dota-red' : ''}`}
+                onClick={() => handleSort('totalMmr')}
+              >
+                Total MMR {sortBy === 'totalMmr' && (sortDirection === 'asc' ? '↑' : '↓')}
+              </th>
+              <th 
                 className={`text-right py-2 px-3 cursor-pointer ${sortBy === 'mmr' ? 'text-dota-red' : ''}`}
                 onClick={() => handleSort('mmr')}
               >
@@ -136,6 +145,11 @@ const HeroStats: React.FC<HeroStatsProps> = ({ matches }) => {
                     {stat.winrate % 1 === 0 ? stat.winrate.toFixed(0) : stat.winrate.toFixed(1)}%
                   </span>
                   <span className="text-gray-400 text-xs ml-1">({stat.wins}-{stat.losses})</span>
+                </td>
+                <td className="text-right py-2 px-3">
+                  <span className={stat.mmrChange > 0 ? 'text-green-400' : stat.mmrChange < 0 ? 'text-red-400' : 'text-gray-400'}>
+                    {stat.mmrChange > 0 ? '+' : ''}{stat.mmrChange}
+                  </span>
                 </td>
                 <td className="text-right py-2 px-3">
                   <span className={stat.avgMmrChange > 0 ? 'text-green-400' : stat.avgMmrChange < 0 ? 'text-red-400' : 'text-gray-400'}>

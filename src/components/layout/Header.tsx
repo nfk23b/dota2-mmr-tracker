@@ -103,6 +103,7 @@ const Header: React.FC = () => {
     { path: '/charts', label: 'Charts' },
     { path: '/hero-stats', label: 'Hero Stats' },
     { path: '/role-stats', label: 'Role Stats' },
+    { path: '/mood-stats', label: 'Mood Stats' },
     { path: '/settings', label: 'Settings' },
   ];
   

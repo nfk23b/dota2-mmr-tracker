@@ -9,6 +9,7 @@ import { useSettingsStore } from './store/settings/settingsStore';
 import MmrChart from './components/charts/MmrChart';
 import HeroStats from './components/stats/HeroStats';
 import RoleStats from './components/stats/RoleStats';
+import MoodStats from './components/stats/MoodStats';
 import Settings from './components/settings/Settings';
 import { initializeSettings } from './utils/settingsInit';
 
@@ -143,6 +144,7 @@ function App() {
           <Route path="/charts" element={<MmrChart matches={matches} />} />
           <Route path="/hero-stats" element={<HeroStats matches={matches} />} />
           <Route path="/role-stats" element={<RoleStats matches={matches} />} />
+          <Route path="/mood-stats" element={<MoodStats matches={matches} />} />
           <Route path="/settings" element={<Settings />} />
         </Routes>
       </Layout>

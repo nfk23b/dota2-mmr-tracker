@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Match } from '../../features/matches/types';
 import { format } from 'date-fns';
+import { HeroIcon } from '../ui/HeroIcon';
 import { 
   GAME_DIFFICULTY_LABELS, 
   ROLE_LABELS, 
@@ -36,7 +37,7 @@ const MatchCard: React.FC<MatchCardProps> = ({ match, onDelete, onEdit  }) => {
   };
 
   return (
-    <div className={`bg-gray-800 rounded-lg overflow-hidden shadow-lg border border-gray-700 transition-all hover:shadow-xl hover:border-gray-600`}>
+    <div className={`bg-gray-800 rounded-lg overflow-hidden shadow-lg transition-all hover:shadow-xl`}>
       {/* Header with result indicator */}
       <div className={`w-full h-1 ${
         result === 'win' ? 'bg-green-500' : 'bg-red-500'
@@ -45,15 +46,22 @@ const MatchCard: React.FC<MatchCardProps> = ({ match, onDelete, onEdit  }) => {
       <div className="p-5">
         <div className="flex justify-between items-start">
           <div>
-            <div className="flex items-center">
-              <h3 className="font-bold text-xl">{hero}</h3>
-              {isTokenGame && (
-                <span className="ml-2 px-2 py-0.5 text-xs bg-yellow-800 text-yellow-200 rounded-full">
-                  Token
-                </span>
-              )}
+            <div className="flex items-start gap-3">
+              {/* Hero Icon */}
+              <HeroIcon heroName={hero} size="md" />
+              
+              <div className="flex items-center gap-2 mt-1">
+                <h3 className="font-bold text-xl">{hero}</h3>
+                <div>
+                  {isTokenGame && (
+                    <span className="px-2 py-0.5 text-xs bg-yellow-800 text-yellow-200 rounded-full">
+                      Token
+                    </span>
+                  )}
+                </div>
+              </div>
             </div>
-            <p className="text-gray-400">{format(new Date(date), 'MMM dd, yyyy HH:mm')}</p>
+            <p className="text-gray-400 mt-2">{format(new Date(date), 'MMM dd, yyyy HH:mm')}</p>
           </div>
           <div className={`px-4 py-2 rounded-full font-bold text-lg ${
             mmrChange > 0 ? 'bg-green-900/40 text-green-400 border border-green-700' : 'bg-red-900/40 text-red-400 border border-red-700'

@@ -10,13 +10,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { isDarkMode } = useTheme();
   
   return (
-    <div className={`min-h-screen transition-colors duration-200 ${
+    <div className={`min-h-screen transition-colors duration-200 flex flex-col ${
       isDarkMode 
         ? 'bg-gray-900 text-white' 
         : 'bg-gray-100 text-gray-900'
     }`}>
       <Header />
-      <main className="container mx-auto px-4 py-6">
+      <main className="container mx-auto px-4 py-6 flex-1">
         {children}
       </main>
       <footer className="container mx-auto p-4 text-center text-gray-500 dark:text-gray-400 text-sm">

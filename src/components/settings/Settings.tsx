@@ -30,7 +30,7 @@ const Settings: React.FC = () => {
   const tabs: { id: SettingsTab; label: string }[] = [
     { id: 'appearance', label: 'Appearance' },
     { id: 'mmr', label: 'MMR' },
-    { id: 'charts', label: 'Charts' },
+    // { id: 'charts', label: 'Charts' },
     { id: 'backup', label: 'Backup' },
     { id: 'notifications', label: 'Notifications' },
     { id: 'heroes', label: 'Heroes' },

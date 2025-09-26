@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useMatchesStore } from '../../store/matches/matchesStore';
+import { useSettingsStore } from '../../store/settings/settingsStore';
 import { differenceInHours } from 'date-fns';
+import { HeroIcon } from '../ui/HeroIcon';
 import { 
   GAME_DIFFICULTIES, 
   GAME_DIFFICULTY_LABELS, 
@@ -16,6 +18,9 @@ import type { Mood } from '../../features/matches/types';
 const MatchForm: React.FC = () => {
   const matches = useMatchesStore(state => state.matches);
   const addMatch = useMatchesStore(state => state.addMatch);
+  
+  // Get favorite heroes from settings
+  const favoriteHeroes = useSettingsStore(state => state.settings.favoriteHeroes);
 
   const [gameDifficulty, setGameDifficulty] = useState('');
   const [showAllHeroes, setShowAllHeroes] = useState(false);
@@ -45,10 +50,13 @@ const MatchForm: React.FC = () => {
     { value: -30, label: '-30' }
   ];
 
-  // Filter heroes based on input
+  // Enhanced hero filtering with favorites priority
   useEffect(() => {
     if (showAllHeroes && hero.trim() === '') {
-      setFilteredHeroes([...HEROES]);
+      // Show favorites first, then all other heroes
+      const validFavorites = favoriteHeroes.filter(h => HEROES.includes(h as typeof HEROES[number])) as Array<typeof HEROES[number]>;
+      const otherHeroes = HEROES.filter(h => !favoriteHeroes.includes(h));
+      setFilteredHeroes([...validFavorites, ...otherHeroes]);
       return;
     }
     
@@ -57,12 +65,20 @@ const MatchForm: React.FC = () => {
       return;
     }
     
-    const filtered = HEROES.filter(h => 
-      h.toLowerCase().includes(hero.toLowerCase())
-    ).slice(0, 5); 
+    // Filter heroes based on search, but prioritize favorites
+    const searchTerm = hero.toLowerCase();
+    const validFavorites = favoriteHeroes.filter(h => HEROES.includes(h as typeof HEROES[number])) as Array<typeof HEROES[number]>;
+    const favoriteMatches = validFavorites.filter(h => 
+      h.toLowerCase().includes(searchTerm)
+    );
+    const otherMatches = HEROES.filter(h => 
+      h.toLowerCase().includes(searchTerm) && !favoriteHeroes.includes(h)
+    );
     
-    setFilteredHeroes([...filtered]); 
-  }, [hero, showAllHeroes]);
+    // Combine with favorites first, limit to 10 total
+    const combined = [...favoriteMatches, ...otherMatches].slice(0, 10);
+    setFilteredHeroes(combined);
+  }, [hero, showAllHeroes, favoriteHeroes]);
   
   // Handle click outside suggestions
   useEffect(() => {
@@ -133,7 +149,7 @@ const MatchForm: React.FC = () => {
       hero,
       role: Number(role) as 1 | 2 | 3 | 4 | 5,
       mmrChange: Number(mmrChange),
-      gameDifficulty: gameDifficulty as any,
+      gameDifficulty: GAME_DIFFICULTIES[gameDifficulty as keyof typeof GAME_DIFFICULTIES],
       isTokenGame,
       result: result as 'win' | 'loss',
       moodStart: moodStart as Mood,
@@ -207,7 +223,7 @@ const MatchForm: React.FC = () => {
       <h2 className="text-xl font-bold mb-4 text-dota-red">Add New Match</h2>
       
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Hero with autocomplete */}
+        {/* Hero with autocomplete and favorites */}
         <div className="relative">
           <label className="block text-sm font-medium mb-1 text-gray-300">Hero</label>
           <input
@@ -232,20 +248,60 @@ const MatchForm: React.FC = () => {
           />
           {errors.hero && <p className="text-red-500 text-xs mt-1">{errors.hero}</p>}
           
-          {/* Hero suggestions */}
+          {/* Enhanced hero suggestions with icons and favorites */}
           {showSuggestions && filteredHeroes.length > 0 && (
-            <div className="absolute z-10 w-full mt-1 bg-gray-700 border border-gray-600 rounded-md shadow-lg max-h-60 overflow-y-auto">
-              {filteredHeroes.map(heroName => (
-                <div
-                  key={heroName}
-                  className="hero-suggestion px-3 py-2 hover:bg-gray-600 cursor-pointer"
-                  onClick={() => {
-                    handleHeroSelect(heroName);
-                  }}
-                >
-                  {heroName}
-                </div>
-              ))}
+            <div className="absolute z-10 w-full mt-1 bg-gray-700 border border-gray-600 rounded-md shadow-lg max-h-80 overflow-y-auto">
+              {/* Show favorites section if we have any and no search term */}
+              {favoriteHeroes.length > 0 && hero.trim() === '' && (
+                <>
+                  <div className="px-3 py-2 bg-gray-600 text-gray-300 text-xs font-medium border-b border-gray-500 flex items-center">
+                    <span className="text-yellow-400 mr-1">⭐</span>
+                    Favorite Heroes
+                  </div>
+                  {favoriteHeroes.map(heroName => (
+                    <div
+                      key={`fav-${heroName}`}
+                      className="hero-suggestion px-3 py-2 hover:bg-gray-600 cursor-pointer flex items-center gap-2"
+                      onClick={() => {
+                        handleHeroSelect(heroName);
+                      }}
+                    >
+                      <HeroIcon heroName={heroName} size="md"/>
+                      <span className="flex-1">{heroName}</span>
+                      <span className="text-yellow-400">⭐</span>
+                    </div>
+                  ))}
+                  {HEROES.filter(h => !favoriteHeroes.includes(h)).length > 0 && (
+                    <div className="px-3 py-2 bg-gray-600 text-gray-300 text-xs font-medium border-b border-gray-500">
+                      All Heroes
+                    </div>
+                  )}
+                </>
+              )}
+              
+              {/* Show filtered results with icons */}
+              {filteredHeroes.map(heroName => {
+                // Skip favorites in the main list if we're showing them separately
+                if (hero.trim() === '' && favoriteHeroes.includes(heroName)) {
+                  return null;
+                }
+                
+                const isFavorite = favoriteHeroes.includes(heroName);
+                
+                return (
+                  <div
+                    key={heroName}
+                    className="hero-suggestion px-3 py-2 hover:bg-gray-600 cursor-pointer flex items-center gap-2"
+                    onClick={() => {
+                      handleHeroSelect(heroName);
+                    }}
+                  >
+                    <HeroIcon heroName={heroName} size="md" />
+                    <span className="flex-1">{heroName}</span>
+                    {isFavorite && <span className="text-yellow-400">⭐</span>}
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
@@ -277,7 +333,7 @@ const MatchForm: React.FC = () => {
                 value={mmrChange}
                 onChange={(e) => {
                   const value = e.target.value ? parseInt(e.target.value) : '';
-                  handleMmrChangeUpdate(value as number);
+                  handleMmrChangeUpdate(value);
                 }}
                 onFocus={() => setShowMmrPresets(true)}
                 className={`w-full bg-gray-700 border ${errors.mmrChange ? 'border-red-500' : 'border-gray-600'} rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-dota-red`}

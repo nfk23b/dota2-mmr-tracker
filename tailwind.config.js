@@ -7,6 +7,9 @@ export default {
     darkMode: 'class',
     theme: {
       extend: {
+        fontFamily: {
+          sans: ['Open Sans', 'system-ui', 'sans-serif'],
+        },
         colors: {
           'dota-red': '#FF4B4B',
           'mood-great': '#4CAF50',
